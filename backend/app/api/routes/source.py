@@ -38,8 +38,20 @@ def get_source_state() -> dict:
 @router.post("/source/files")
 async def upload_files(files: list[UploadFile] = File(...)) -> dict:
     try:
+        uploaded = []
         for item in files:
             source.upload(item.filename or "uploaded-file", await item.read())
-        return source.state()
+            uploaded.append(item.filename or "uploaded-file")
+        return {
+            "status": "success",
+            "source": source.state(),
+            "steps": [
+                {"name": "upload_files", "status": "completed", "details": ", ".join(uploaded)},
+                {"name": "read_file_metadata", "status": "completed", "details": f"{len(uploaded)} files"},
+                {"name": "calculate_content_hashes", "status": "completed"},
+                {"name": "register_source_files", "status": "completed"},
+                {"name": "update_source_state", "status": "completed"},
+            ],
+        }
     except (UnicodeDecodeError, ValueError) as exc:
         raise HTTPException(400, str(exc)) from exc

@@ -9,19 +9,31 @@ from ...services.chain_service import find_alternate_delta
 
 router = APIRouter()
 
-def serialize(point: BackupPoint) -> dict:
-    return {key: getattr(point, key) for key in ("id", "source_id", "type", "sequence", "parent_id", "start_version", "end_version", "change_count", "artifact_path", "manifest_path", "manifest_hash", "artifact_hash", "status", "created_at")}
+def serialize(point: BackupPoint, validation: dict | None = None) -> dict:
+    steps = [
+        {"name": "read_source_state", "status": "completed"},
+        {"name": "collect_files" if point.type == "FULL" else "detect_changes", "status": "completed", "details": f"{point.change_count} changes"},
+        {"name": "create_artifact", "status": "completed"},
+        {"name": "create_manifest", "status": "completed"},
+        {"name": "calculate_manifest_hash", "status": "completed"},
+        {"name": "calculate_artifact_hash", "status": "completed"},
+        {"name": "save_backup_metadata", "status": "completed"},
+        {"name": "validate_backup", "status": "completed" if validation is None or validation.get("valid") else "failed", "details": ", ".join(validation.get("errors", [])) if validation and not validation.get("valid") else ""},
+    ]
+    return {**{key: getattr(point, key) for key in ("id", "source_id", "type", "sequence", "parent_id", "start_version", "end_version", "change_count", "artifact_path", "manifest_path", "manifest_hash", "artifact_hash", "status", "created_at")}, "steps": steps}
 
 @router.post("/backup/full")
 @router.post("/backups/full")
 def full(db: Session = Depends(get_db)) -> dict:
-    return serialize(create_full_backup(db))
+    point = create_full_backup(db)
+    return serialize(point, validate_backup(db, point))
 
 @router.post("/backup/incremental")
 @router.post("/backups/incremental")
 def incremental(db: Session = Depends(get_db)) -> dict:
     try:
-        return serialize(create_incremental_backup(db))
+        point = create_incremental_backup(db)
+        return serialize(point, validate_backup(db, point))
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
 

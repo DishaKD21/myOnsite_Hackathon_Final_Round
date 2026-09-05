@@ -60,26 +60,10 @@ footer {
   box-shadow: var(--shadow-sm);
 }
 
-.dashboard-grid {
+.simple-layout {
   display: grid;
-  grid-template-columns: minmax(330px, 0.9fr) minmax(460px, 1.3fr);
-  gap: var(--space-5);
+  gap: var(--space-4);
   padding-bottom: var(--space-10);
-}
-
-.chain-panel {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-}
-
-.details-panel,
-.recovery-panel {
-  grid-column: 1;
-}
-
-.verification-panel,
-.demo-panel {
-  grid-column: 2;
 }
 
 footer {

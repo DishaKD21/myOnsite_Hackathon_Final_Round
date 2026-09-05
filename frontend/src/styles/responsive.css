@@ -5,19 +5,6 @@
     width: min(100% - 32px, 720px);
   }
 
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .chain-panel,
-  .details-panel,
-  .verification-panel,
-  .recovery-panel,
-  .demo-panel {
-    grid-column: auto;
-    grid-row: auto;
-  }
-
   .hero-strip {
     grid-template-columns: 1fr;
     gap: var(--space-5);
@@ -111,5 +98,13 @@
   footer {
     flex-direction: column;
     font-size: 10px;
+  }
+
+  .log-entry {
+    grid-template-columns: 22px 66px minmax(0, 1fr);
+  }
+
+  .log-entry > span:last-child {
+    grid-column: 3;
   }
 }

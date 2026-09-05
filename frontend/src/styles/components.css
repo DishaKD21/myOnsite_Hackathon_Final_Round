@@ -201,6 +201,122 @@
   box-shadow: var(--shadow-sm);
 }
 
+.process-log,
+.simple-controls {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.simple-layout .source-panel {
+  padding: 18px 20px;
+}
+
+.simple-layout .source-panel .file-row {
+  padding: 9px 0;
+}
+
+.simple-layout .source-panel .file-row .button {
+  min-height: 28px;
+  margin-left: auto;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
+.log-list {
+  border-top: 1px solid var(--color-border);
+}
+
+.log-entry {
+  display: grid;
+  grid-template-columns: 26px 76px minmax(0, auto) minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 12px;
+}
+
+.log-entry time,
+.log-entry > span:last-child {
+  color: var(--color-text-muted);
+}
+
+.log-icon {
+  color: var(--color-success);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.log-entry.failed .log-icon,
+.log-entry.failed strong,
+.failed-result,
+.failed-result strong {
+  color: var(--color-danger);
+}
+
+.log-entry.running .log-icon,
+.log-active {
+  color: var(--color-warning);
+}
+
+.log-active {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.control-row-secondary {
+  margin-top: 10px;
+}
+
+.node-details,
+.chain-result {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 12px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.node-details strong,
+.chain-result strong {
+  color: var(--color-text);
+}
+
+.chain-node.failed {
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.chain-node.checking {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 3px rgba(214, 145, 42, 0.18);
+}
+
+.chain-link.broken {
+  color: var(--color-danger);
+}
+
+.compact-result {
+  border-left: 3px solid var(--color-success);
+  background: var(--color-success-bg);
+  padding: 9px 12px;
+  color: var(--color-success);
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .section-heading {
   justify-content: space-between;
   gap: var(--space-4);
