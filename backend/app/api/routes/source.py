@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from ...schemas.source import AddInput, DeleteInput, ModifyInput, SourceFileInput
 from ...services.source_service import SourceService
 from ...database import SOURCE_DIR
@@ -34,3 +34,12 @@ def delete(item: DeleteInput) -> dict:
 @router.get("/source/state")
 def get_source_state() -> dict:
     return source.state()
+
+@router.post("/source/files")
+async def upload_files(files: list[UploadFile] = File(...)) -> dict:
+    try:
+        for item in files:
+            source.upload(item.filename or "uploaded-file", await item.read())
+        return source.state()
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise HTTPException(400, str(exc)) from exc

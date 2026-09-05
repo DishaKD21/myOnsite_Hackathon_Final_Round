@@ -1,4 +1,4 @@
-import { api } from '../services/api'
+import { request, jsonRequest } from './client'
 
-export const restore = api.restore
-export const verifyRestore = api.verifyRestore
+export const restore = (id) => request('/restore', jsonRequest('POST', { recovery_point_id: id }))
+export const verifyRestore = (id) => request('/restore/verify', jsonRequest('POST', { recovery_point_id: id }))

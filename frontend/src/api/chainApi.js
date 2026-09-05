@@ -1,5 +1,3 @@
-import { api } from '../services/api'
+import { request } from './client'
 
-export const verifyChain = api.verifyChain
-export const findAlternate = api.findAlternate
-export const verifyAlternate = api.verifyAlternate
+export const verifyChain = () => request('/chain/verify')

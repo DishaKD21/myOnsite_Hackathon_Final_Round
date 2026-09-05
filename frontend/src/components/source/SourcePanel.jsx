@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 const seedFiles = [
 	{ file_id: 'employee-101', filename: 'employee-101.json', content: '{"name":"Asha Patel","team":"Operations"}' },
@@ -6,13 +6,20 @@ const seedFiles = [
 	{ file_id: 'policy-001', filename: 'policy-001.json', content: '{"retention_days":90,"region":"eu-west"}' },
 ]
 
-export default function SourcePanel({ source, onSeed, onModify, onAdd, busy }) {
+export default function SourcePanel({ source, onSeed, onUpload, onModify, onAdd, onDelete, busy }) {
+	const inputRef = useRef(null)
+	const [selectedFiles, setSelectedFiles] = useState([])
 	const [fileId, setFileId] = useState('employee-101')
 	const [content, setContent] = useState('{"name":"Asha Patel","team":"Operations","status":"active"}')
 	const [newFileId, setNewFileId] = useState('audit-001')
 	const [newFilename, setNewFilename] = useState('audit-001.json')
 	const [newContent, setNewContent] = useState('{"event":"backup-check","owner":"ops"}')
 	const files = source?.files || []
+	const upload = () => {
+		if (selectedFiles.length) onUpload(selectedFiles)
+		setSelectedFiles([])
+		if (inputRef.current) inputRef.current.value = ''
+	}
 
 	return (
 		<section className="panel source-panel">
@@ -23,9 +30,11 @@ export default function SourcePanel({ source, onSeed, onModify, onAdd, busy }) {
 				<div><strong>{source?.source_id || '-'}</strong><span>source ID</span></div>
 			</div>
 			<div className="action-row">
-				<button type="button" className="button button-primary" onClick={() => onSeed(seedFiles)} disabled={busy}>Seed Source</button>
-				<span className="helper-text">Reset the deterministic demo dataset.</span>
+				<input ref={inputRef} type="file" multiple onChange={(event) => setSelectedFiles(Array.from(event.target.files || []))} disabled={busy} />
+				<button type="button" className="button button-primary" onClick={upload} disabled={busy || !selectedFiles.length}>Upload Files</button>
+				<button type="button" className="button button-secondary" onClick={() => onSeed(seedFiles)} disabled={busy}>Seed Demo</button>
 			</div>
+			{selectedFiles.length > 0 && <p className="helper-text">Ready to upload: {selectedFiles.map((file) => file.name).join(', ')}</p>}
 			<div className="form-divider" />
 			<p className="form-title">Modify a tracked file</p>
 			<div className="form-grid">
@@ -42,7 +51,7 @@ export default function SourcePanel({ source, onSeed, onModify, onAdd, busy }) {
 			</div>
 			<button type="button" className="button button-secondary" onClick={() => onAdd(newFileId, newFilename, newContent)} disabled={busy || !newFileId || !newFilename || !newContent}>Add File</button>
 			<div className="file-list">
-				{files.length ? files.map((file) => <div className="file-row" key={file.file_id}><span className="file-icon">{file.filename.endsWith('.json') ? '{}' : 'F'}</span><div><strong>{file.filename}</strong><span>{file.file_id} - version {file.version} - {file.size} bytes</span></div></div>) : <p className="empty-state">No source files yet. Seed the deterministic dataset to begin.</p>}
+				{files.length ? files.map((file) => <div className="file-row" key={file.file_id}><span className="file-icon">{file.filename.endsWith('.json') ? '{}' : 'F'}</span><div><strong>{file.filename}</strong><span>{file.file_id} - v{file.version} - {file.size} bytes - {file.content_hash?.slice(0, 12)}</span></div><button type="button" className="button button-ghost" onClick={() => onDelete(file.file_id)} disabled={busy} aria-label={`Delete ${file.filename}`}>Delete</button></div>) : <p className="empty-state">No source files yet. Upload files or seed the demo dataset to begin.</p>}
 			</div>
 		</section>
 	)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import zipfile
 from pathlib import Path
 from sqlalchemy.orm import Session
 from ..models import BackupPoint
@@ -28,10 +29,14 @@ def validate_backup(db: Session, point: BackupPoint) -> dict:
             if manifest.get("start_version") != point.start_version or manifest.get("end_version") != point.end_version: errors.append("version coverage mismatch")
     if artifact.exists():
         try:
-            payload = json.loads(artifact.read_text(encoding="utf-8"))
+            with zipfile.ZipFile(artifact) as archive:
+                if archive.testzip() is not None:
+                    errors.append("artifact ZIP is corrupt")
+            payload_path = artifact.with_name("artifact.json")
+            payload = json.loads(payload_path.read_text(encoding="utf-8"))
             if point.type == "INCREMENTAL" and len(payload.get("changes", [])) != point.change_count: errors.append("artifact change count mismatch")
             if point.type == "FULL" and payload.get("kind") != "FULL": errors.append("full artifact kind mismatch")
-        except json.JSONDecodeError: errors.append("artifact is not valid JSON")
+        except (OSError, zipfile.BadZipFile, json.JSONDecodeError): errors.append("artifact is not a valid backup ZIP")
     if not errors:
         try: state_for_point(db, point); checks.append("artifact applies to parent state")
         except (ValueError, KeyError, OSError, json.JSONDecodeError) as exc: errors.append(f"cannot apply backup: {exc}")

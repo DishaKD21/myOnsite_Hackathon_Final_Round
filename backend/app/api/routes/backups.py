@@ -13,10 +13,12 @@ def serialize(point: BackupPoint) -> dict:
     return {key: getattr(point, key) for key in ("id", "source_id", "type", "sequence", "parent_id", "start_version", "end_version", "change_count", "artifact_path", "manifest_path", "manifest_hash", "artifact_hash", "status", "created_at")}
 
 @router.post("/backup/full")
+@router.post("/backups/full")
 def full(db: Session = Depends(get_db)) -> dict:
     return serialize(create_full_backup(db))
 
 @router.post("/backup/incremental")
+@router.post("/backups/incremental")
 def incremental(db: Session = Depends(get_db)) -> dict:
     try:
         return serialize(create_incremental_backup(db))
