@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
-import { api } from './services/api'
-import Header from './components/Header'
-import SourcePanel from './components/SourcePanel'
-import BackupChain from './components/BackupChain'
-import BackupDetails from './components/BackupDetails'
-import VerificationPanel from './components/VerificationPanel'
-import RecoveryPanel from './components/RecoveryPanel'
-import DemoControls from './components/DemoControls'
+import { api } from './api'
+import Header from './components/common/Header'
+import SourcePanel from './components/source/SourcePanel'
+import BackupChain from './components/backup/BackupChain'
+import BackupDetails from './components/backup/BackupDetails'
+import VerificationPanel from './components/chain/VerificationPanel'
+import RecoveryPanel from './components/recovery/RecoveryPanel'
+import DemoControls from './components/recovery/DemoControls'
 
 export default function App() {
   const [source, setSource] = useState(null)
