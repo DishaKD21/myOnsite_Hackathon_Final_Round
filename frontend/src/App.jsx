@@ -63,14 +63,52 @@ export default function App() {
   const restore = (id) => run(async () => { const result = await api.restore(id); setRestoreResult(result); setRestoreVerification(null); return result }, 'Restore operation completed.', async () => {})
   const verifyRestore = (id) => run(async () => { const result = await api.verifyRestore(id); setRestoreVerification(result); return result }, 'Restore verification completed.', async () => {})
 
-  return <div className="app-shell">
-    <Header connected={connected} onRefresh={() => refresh()} refreshing={refreshing} apiUrl={api.baseUrl} />
-    <main>
-      <section className="hero-strip"><div><p className="eyebrow">Recovery evidence, at a glance</p><h2>Know which backup you can trust.</h2><p>Trace every dependency from the full snapshot to the latest safe recovery point.</p></div><div className="hero-metric"><span>Safe recovery point</span><strong>{verification?.latest_safe_recovery_point || '—'}</strong><small>{verification?.chain_status ? verification.chain_status.replaceAll('_', ' ') : 'Not verified yet'}</small></div></section>
-      {error && <div className="alert alert-error"><strong>Request failed</strong><span>{error}</span><button onClick={() => setError('')}>Dismiss</button></div>}
-      {notice && <div className="alert alert-success"><strong>Operation complete</strong><span>{notice}</span><button onClick={() => setNotice('')}>Dismiss</button></div>}
-      <div className="dashboard-grid"><SourcePanel source={source} onSeed={seed} onModify={modify} onAdd={add} busy={busy} /><BackupChain backups={backups} selectedId={selectedId} onSelect={selectBackup} verification={verification} /><BackupDetails backup={selectedBackup} validation={validation} onValidate={validate} onFindAlternate={findAlternate} busy={busy} /><VerificationPanel verification={verification} onVerify={verifyChain} busy={busy} /><RecoveryPanel backups={backups} verification={verification} restoreResult={restoreResult} restoreVerification={restoreVerification} onRestore={restore} onVerifyRestore={verifyRestore} busy={busy} /><DemoControls backups={backups} onFindAlternate={findAlternate} alternateResult={alternateResult} onVerifyAlternate={verifyAlternate} onCreateFull={createFull} onCreateIncremental={createIncremental} busy={busy} /></div>
-    </main>
-    <footer><span>BackupChain local console</span><span>API · {api.baseUrl}</span></footer>
-  </div>
+  return (
+    <div className="app-shell">
+      <Header connected={connected} onRefresh={() => refresh()} refreshing={refreshing} apiUrl={api.baseUrl} />
+      <main>
+        <section className="hero-strip">
+          <div>
+            <p className="eyebrow">Recovery evidence, at a glance</p>
+            <h2>Know which backup you can trust.</h2>
+            <p>Trace every dependency from the full snapshot to the latest safe recovery point.</p>
+          </div>
+          <div className="hero-metric">
+            <span>Safe recovery point</span>
+            <strong>{verification?.latest_safe_recovery_point || '-'}</strong>
+            <small>{verification?.chain_status ? verification.chain_status.replaceAll('_', ' ') : 'Not verified yet'}</small>
+          </div>
+        </section>
+
+        {error && (
+          <div className="alert alert-error" role="alert">
+            <strong>Request failed</strong>
+            <span>{error}</span>
+            <button type="button" onClick={() => setError('')}>Dismiss</button>
+          </div>
+        )}
+
+        {notice && (
+          <div className="alert alert-success" role="status">
+            <strong>Operation complete</strong>
+            <span>{notice}</span>
+            <button type="button" onClick={() => setNotice('')}>Dismiss</button>
+          </div>
+        )}
+
+        <div className="dashboard-grid">
+          <SourcePanel source={source} onSeed={seed} onModify={modify} onAdd={add} busy={busy} />
+          <BackupChain backups={backups} selectedId={selectedId} onSelect={selectBackup} verification={verification} />
+          <BackupDetails backup={selectedBackup} validation={validation} onValidate={validate} onFindAlternate={findAlternate} busy={busy} />
+          <VerificationPanel verification={verification} onVerify={verifyChain} busy={busy} />
+          <RecoveryPanel backups={backups} verification={verification} restoreResult={restoreResult} restoreVerification={restoreVerification} onRestore={restore} onVerifyRestore={verifyRestore} busy={busy} />
+          <DemoControls backups={backups} onFindAlternate={findAlternate} alternateResult={alternateResult} onVerifyAlternate={verifyAlternate} onCreateFull={createFull} onCreateIncremental={createIncremental} busy={busy} />
+        </div>
+      </main>
+      <footer>
+        <span>BackupChain local console</span>
+        <span>API - {api.baseUrl}</span>
+      </footer>
+    </div>
+  )
 }

@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@500;600&display=swap');
+
+:root {
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Source Code Pro', 'SFMono-Regular', Consolas, monospace;
+
+  --color-primary: #1f4f75;
+  --color-primary-hover: #183f5f;
+  --color-secondary: #476173;
+  --color-background: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f8fafc;
+  --color-surface-muted: #eef3f7;
+  --color-text: #1c2733;
+  --color-text-muted: #647386;
+  --color-text-soft: #8995a5;
+  --color-border: #d9e0e8;
+  --color-border-strong: #c2ccd8;
+  --color-success: #287a52;
+  --color-success-bg: #e9f6ef;
+  --color-warning: #9a6515;
+  --color-warning-bg: #fff5df;
+  --color-danger: #b8463f;
+  --color-danger-bg: #fff0ef;
+  --color-focus: rgba(31, 79, 117, 0.18);
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.07);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+}

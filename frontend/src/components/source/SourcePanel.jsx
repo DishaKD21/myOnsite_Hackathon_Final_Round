@@ -20,10 +20,10 @@ export default function SourcePanel({ source, onSeed, onModify, onAdd, busy }) {
 			<div className="source-summary">
 				<div><strong>{files.length}</strong><span>tracked files</span></div>
 				<div><strong>V{source?.version ?? '-'}</strong><span>current version</span></div>
-				<div><strong>{source?.source_id || '—'}</strong><span>source ID</span></div>
+				<div><strong>{source?.source_id || '-'}</strong><span>source ID</span></div>
 			</div>
 			<div className="action-row">
-				<button className="button button-primary" onClick={() => onSeed(seedFiles)} disabled={busy}>Seed Source</button>
+				<button type="button" className="button button-primary" onClick={() => onSeed(seedFiles)} disabled={busy}>Seed Source</button>
 				<span className="helper-text">Reset the deterministic demo dataset.</span>
 			</div>
 			<div className="form-divider" />
@@ -32,7 +32,7 @@ export default function SourcePanel({ source, onSeed, onModify, onAdd, busy }) {
 				<label>File ID<input value={fileId} onChange={(event) => setFileId(event.target.value)} placeholder="employee-101" /></label>
 				<label className="wide-field">New content<textarea value={content} onChange={(event) => setContent(event.target.value)} rows="2" /></label>
 			</div>
-			<button className="button button-secondary" onClick={() => onModify(fileId, content)} disabled={busy || !fileId || !content}>Modify File</button>
+			<button type="button" className="button button-secondary" onClick={() => onModify(fileId, content)} disabled={busy || !fileId || !content}>Modify File</button>
 			<div className="form-divider" />
 			<p className="form-title">Add a source file</p>
 			<div className="form-grid">
@@ -40,9 +40,9 @@ export default function SourcePanel({ source, onSeed, onModify, onAdd, busy }) {
 				<label>Filename<input value={newFilename} onChange={(event) => setNewFilename(event.target.value)} placeholder="audit-001.json" /></label>
 				<label className="wide-field">Content<textarea value={newContent} onChange={(event) => setNewContent(event.target.value)} rows="2" /></label>
 			</div>
-			<button className="button button-secondary" onClick={() => onAdd(newFileId, newFilename, newContent)} disabled={busy || !newFileId || !newFilename || !newContent}>Add File</button>
+			<button type="button" className="button button-secondary" onClick={() => onAdd(newFileId, newFilename, newContent)} disabled={busy || !newFileId || !newFilename || !newContent}>Add File</button>
 			<div className="file-list">
-				{files.length ? files.map((file) => <div className="file-row" key={file.file_id}><span className="file-icon">{file.filename.endsWith('.json') ? '{}' : 'F'}</span><div><strong>{file.filename}</strong><span>{file.file_id} · version {file.version} · {file.size} bytes</span></div></div>) : <p className="empty-state">No source files yet. Seed the deterministic dataset to begin.</p>}
+				{files.length ? files.map((file) => <div className="file-row" key={file.file_id}><span className="file-icon">{file.filename.endsWith('.json') ? '{}' : 'F'}</span><div><strong>{file.filename}</strong><span>{file.file_id} - version {file.version} - {file.size} bytes</span></div></div>) : <p className="empty-state">No source files yet. Seed the deterministic dataset to begin.</p>}
 			</div>
 		</section>
 	)

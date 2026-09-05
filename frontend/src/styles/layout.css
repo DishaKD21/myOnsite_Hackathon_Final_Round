@@ -1,0 +1,94 @@
+.app-shell {
+  min-height: 100vh;
+}
+
+.topbar,
+main,
+footer {
+  width: min(1360px, calc(100% - 56px));
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: 28px 0 22px;
+}
+
+.brand-lockup,
+.connection-area,
+.connection-status,
+.section-heading,
+.action-row,
+.node-top,
+.alternate-row,
+.alternate-result,
+.restore-output-heading {
+  display: flex;
+  align-items: center;
+}
+
+.brand-lockup {
+  gap: var(--space-4);
+}
+
+.connection-area {
+  gap: var(--space-4);
+}
+
+.connection-status {
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 9px 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.hero-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-8);
+  align-items: stretch;
+  margin-bottom: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(330px, 0.9fr) minmax(460px, 1.3fr);
+  gap: var(--space-5);
+  padding-bottom: var(--space-10);
+}
+
+.chain-panel {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.details-panel,
+.recovery-panel {
+  grid-column: 1;
+}
+
+.verification-panel,
+.demo-panel {
+  grid-column: 2;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-soft);
+  padding: var(--space-5) 0 var(--space-8);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}

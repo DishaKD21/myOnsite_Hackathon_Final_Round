@@ -14,8 +14,8 @@ export default function Header({ connected, onRefresh, refreshing, apiUrl }) {
 					<span className={`connection-dot ${connected ? 'is-connected' : ''}`} />
 					<div><span className="muted-label">Backend</span><strong>{connected ? 'Connected' : 'Disconnected'}</strong></div>
 				</div>
-				<button className="button button-quiet" onClick={onRefresh} disabled={refreshing} title={`Refresh from ${apiUrl}`}>
-					<span className={refreshing ? 'spin' : ''}>↻</span> {refreshing ? 'Refreshing' : 'Refresh'}
+				<button type="button" className="button button-quiet" onClick={onRefresh} disabled={refreshing} title={`Refresh from ${apiUrl}`}>
+					{refreshing ? 'Refreshing' : 'Refresh'}
 				</button>
 			</div>
 		</header>
