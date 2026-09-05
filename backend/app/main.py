@@ -1,5 +1,6 @@
 from __future__ import annotations
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from .database import get_db, init_db
 from .schemas import SourceFileInput, ModifyInput, AddInput, DeleteInput, RestoreInput
@@ -13,6 +14,13 @@ from .services.recovery_service import restore_to_recovery_point, verify_restore
 from .models import BackupPoint
 
 app = FastAPI(title="BackupChain", version="1.0.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 def startup() -> None: init_db()
