@@ -2,7 +2,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from sqlalchemy.orm import Session
-from ..models import BackupPoint, Resolution
+from ..models import BackupChange, BackupPoint, Resolution
 from .engine import state_for_point
 from .validation_service import validate_backup
 from .hash_service import calculate_artifact_hash
@@ -41,10 +41,23 @@ def create_alternate_copy(db: Session, original: BackupPoint, alternate_id: str)
     alternate_dir.mkdir(parents=True, exist_ok=True)
     artifact_path = alternate_dir / f"{alternate_id}.zip"
     manifest_path = alternate_dir / "manifest.json"
-    artifact_path.write_bytes(Path(original.artifact_path).read_bytes())
     original_payload = Path(original.artifact_path).with_name("artifact.json")
-    (alternate_dir / "artifact.json").write_bytes(original_payload.read_bytes())
-    manifest_path.write_bytes(Path(original.manifest_path).read_bytes())
+    original_manifest = Path(original.manifest_path)
+    if Path(original.artifact_path).exists() and original_payload.exists() and original_manifest.exists():
+        artifact_path.write_bytes(Path(original.artifact_path).read_bytes())
+        (alternate_dir / "artifact.json").write_bytes(original_payload.read_bytes())
+        manifest_path.write_bytes(original_manifest.read_bytes())
+    else:
+        changes = [json.loads(item.payload_json) for item in db.query(BackupChange).filter_by(backup_id=original.id).order_by(BackupChange.file_id).all()]
+        payload = {"kind": "DELTA", "point_id": alternate_id, "parent_id": original.parent_id, "changes": changes}
+        (alternate_dir / "artifact.json").write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")), encoding="utf-8")
+        with __import__("zipfile").ZipFile(artifact_path, "w", compression=__import__("zipfile").ZIP_DEFLATED) as archive:
+            for change in changes:
+                if change.get("new") is not None:
+                    new_file = change["new"]
+                    archive.writestr(new_file["filename"], new_file.get("content", "").encode("utf-8"))
+        manifest = {"type": "DELTA", "delta_id": original.id, "parent_id": original.parent_id, "source_id": original.source_id, "start_version": original.start_version, "end_version": original.end_version, "change_count": original.change_count, "file_ids": [change["file_id"] for change in changes], "coverage": [{key: change[key] for key in ("file_id", "previous_version", "new_version", "previous_content_hash", "new_content_hash")} for change in changes]}
+        manifest_path.write_text(json.dumps(manifest, sort_keys=True, separators=(",", ":")), encoding="utf-8")
     alternate = BackupPoint(id=alternate_id, source_id=original.source_id, type=original.type, sequence=original.sequence, parent_id=original.parent_id, start_version=original.start_version, end_version=original.end_version, change_count=original.change_count, artifact_path=str(artifact_path), manifest_path=str(manifest_path), manifest_hash=manifest_hash(json.loads(manifest_path.read_text(encoding="utf-8"))), artifact_hash=calculate_artifact_hash(artifact_path), status="VALID")
     db.add(alternate)
     for change in original.changes:

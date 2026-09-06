@@ -95,7 +95,7 @@ def create_full_backup(db: Session, source_id: str = "demo-source") -> BackupPoi
     db.add(point); db.commit(); return point
 
 def create_incremental_backup(db: Session, source_id: str = "demo-source", chain: BackupChain | None = None) -> BackupPoint | None:
-    chain = chain or BackupChain.load(db, source_id)
+    chain = chain or BackupChain.load_for_comparison(db, source_id)
     chain.last_comparison_steps = [{"name": "start_linked_list_traversal", "status": "completed"}]
     parent = chain.tail
     if parent is None:

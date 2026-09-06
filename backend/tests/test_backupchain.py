@@ -1,4 +1,6 @@
 from pathlib import Path
+import shutil
+import shutil
 import pytest
 import json
 from app.database import Base
@@ -10,6 +12,7 @@ from app.services.chain_service import verify_chain, find_alternate_delta
 from app.services.validation_service import validate_backup
 from app.services.alternate_service import verify_alternate
 from app.services.alternate_service import create_alternate_copy
+from app.services.hash_service import sha256_content
 
 @pytest.fixture
 def setup(tmp_path, monkeypatch):
@@ -33,6 +36,12 @@ def test_full_and_no_change(setup):
     assert delta is None
     assert setup.query(BackupPoint).count() == 1
     assert validate_backup(setup, full)["valid"]
+
+def test_uploaded_crlf_content_hash_matches_persisted_content(setup):
+    source.upload("patients.csv", b"id,name\r\nP1,Alex\r\n")
+    item = source.state()["files"][0]
+    assert item["content_hash"] == sha256_content(item["content"])
+    assert Path(source.root / "files" / "patients.csv").read_bytes() == b"id,name\r\nP1,Alex\r\n"
 
 def test_multiple_changes_are_one_delta(setup):
     create_full_backup(setup); source.modify("a", "one-new"); source.modify("b", "two-new")
@@ -114,6 +123,15 @@ def test_missing_delta_breaks_chain(setup):
     result = verify_chain(setup)
     assert result["chain_status"] == "BROKEN" and result["latest_safe_recovery_point"] == "FULL-001"
 
+def test_deleted_delta_directory_returns_structured_failure(setup):
+    create_full_backup(setup); source.modify("a", "v2"); d1 = create_incremental_backup(setup); source.modify("b", "v2"); create_incremental_backup(setup)
+    shutil.rmtree(Path(d1.artifact_path).parent)
+    result = verify_chain(setup)
+    assert result["chain_status"] == "BROKEN"
+    assert result["earliest_problem"] == d1.id
+    assert result["latest_safe_recovery_point"] == "FULL-001"
+    assert any("artifact" in error for error in result["details"]["errors"])
+
 def test_version_gap_breaks_chain(setup):
     create_full_backup(setup); source.modify("a", "v2"); d1 = create_incremental_backup(setup); source.modify("b", "v2"); d2 = create_incremental_backup(setup)
     d2.start_version = d1.end_version + 10
@@ -137,6 +155,12 @@ def test_alternate_can_prove_equivalence_when_original_artifact_is_missing(setup
     alternate = create_alternate_copy(setup, original, "D1-ALT")
     Path(original.artifact_path).unlink()
     Path(original.artifact_path).with_name("artifact.json").unlink()
+    assert verify_alternate(setup, original, alternate)["accepted"]
+
+def test_alternate_copy_can_be_rebuilt_from_change_records(setup):
+    create_full_backup(setup); source.modify("a", "v2"); original = create_incremental_backup(setup)
+    shutil.rmtree(Path(original.artifact_path).parent)
+    alternate = create_alternate_copy(setup, original, "D1-ALT")
     assert verify_alternate(setup, original, alternate)["accepted"]
 
 def test_verified_alternate_is_traversed_in_original_node_position(setup):

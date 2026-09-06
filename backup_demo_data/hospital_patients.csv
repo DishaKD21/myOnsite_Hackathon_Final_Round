@@ -1,0 +1,11 @@
+patient_id,full_name,date_of_birth,department,doctor,admission_date,diagnosis,status,room_number,last_updated
+PT-1001,Aarav Mehta,1987-04-12,Cardiology,Dr. Nisha Rao,2026-08-28,Hypertension,Admitted,204A,2026-09-01T09:15:00Z
+PT-1002,Emily Carter,1979-11-03,Orthopedics,Dr. Daniel Brooks,2026-08-29,Fractured wrist,Under observation,118B,2026-09-01T10:40:00Z
+PT-1003,Kenji Tanaka,1992-06-25,Neurology,Dr. Maya Patel,2026-08-30,Migraine,Discharged,305C,2026-09-01T08:20:00Z
+PT-1004,Sofia Rodriguez,1968-02-17,Oncology,Dr. Liam Wilson,2026-08-31,Breast cancer,Admitted,412A,2026-09-01T11:05:00Z
+PT-1005,Noah Williams,2001-09-08,Emergency,Dr. Priya Shah,2026-09-01,Appendicitis,Preparing for surgery,ER-07,2026-09-01T12:30:00Z
+PT-1006,Olivia Martin,1955-12-21,Pulmonology,Dr. Ethan Lee,2026-09-01,Asthma exacerbation,Admitted,221B,2026-09-01T13:10:00Z
+PT-1007,Lucas Johnson,1983-07-14,Gastroenterology,Dr. Hannah Kim,2026-09-01,Dehydration,Under observation,109A,2026-09-01T14:25:00Z
+PT-1008,Amara Okafor,1996-03-30,Pediatrics,Dr. Samuel Green,2026-09-01,Respiratory infection,Discharged, Pediatric-03,2026-09-01T15:00:00Z
+PT-1009,Amara Okafor,1996-03-31,Pediatrics,Dr. Samuel Green,2026-09-01,Respiratory infection,Discharged, Pediatric-03,2026-09-01T15:00:00Z
+PT-1010,Amara Okafor,1996-03-31,Pediatrics,Dr. Samuel Green,2026-09-01,Respiratory infection,Discharged, Pediatric-03,2026-09-01T15:00:00Z

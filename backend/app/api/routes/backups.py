@@ -41,7 +41,7 @@ def full(db: Session = Depends(get_db)) -> dict:
 @router.post("/backups/incremental")
 def incremental(db: Session = Depends(get_db)) -> dict:
     try:
-        chain = BackupChain.load(db)
+        chain = BackupChain.load_for_comparison(db)
         point = create_incremental_backup(db, chain=chain)
         if point is None:
             return {"created": False, "change_count": 0, "steps": chain.last_comparison_steps + [{"name": "no_changes", "status": "completed", "details": "No incremental backup created"}]}

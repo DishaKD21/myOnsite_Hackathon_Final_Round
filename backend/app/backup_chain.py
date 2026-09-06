@@ -122,7 +122,7 @@ class BackupChain:
 
     @classmethod
     def load(cls, db: Session, source_id: str = "demo-source") -> "BackupChain":
-        """Build the chain by following parent links, not by sorting all points."""
+        """Build only the BackupPoint linked list from database metadata."""
         chain = cls()
         full = db.execute(
             select(BackupPoint)
@@ -134,8 +134,7 @@ class BackupChain:
 
         resolutions = {item.original_id: item.replacement_id for item in db.execute(select(Resolution).where(Resolution.approved.is_(True))).scalars().all()}
         approved_replacements = set(resolutions.values())
-        file_head = _file_nodes(_artifact_payload(full).get("files", []))
-        chain.append(full, file_head)
+        chain.append(full)
         current = full
         lookup_parent_id = full.id
         while True:
@@ -153,8 +152,20 @@ class BackupChain:
                 break
             original_id = child.id
             logical_child = db.get(BackupPoint, resolutions.get(original_id, original_id)) or child
-            file_head = _apply_delta(file_head, logical_child)
-            chain.append(logical_child, file_head, original_id)
+            chain.append(logical_child, logical_id=original_id)
             current = logical_child
             lookup_parent_id = original_id
+        return chain
+
+    @classmethod
+    def load_for_comparison(cls, db: Session, source_id: str = "demo-source") -> "BackupChain":
+        """Load the linked points and materialize file state only for incremental creation."""
+        chain = cls.load(db, source_id)
+        if chain.head is None:
+            return chain
+        file_head = _file_nodes(_artifact_payload(chain.head).get("files", []))
+        chain.file_head = file_head
+        for point in list(chain)[1:]:
+            file_head = _apply_delta(file_head, point)
+            chain.file_head = file_head
         return chain

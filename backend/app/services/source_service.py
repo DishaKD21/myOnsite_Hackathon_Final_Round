@@ -40,7 +40,7 @@ class SourceService:
                 path = legacy_path
             else:
                 return ""
-        return path.read_text(encoding="utf-8")
+        return path.read_bytes().decode("utf-8")
 
     def seed(self, files: list[dict[str, str]]) -> dict[str, Any]:
         state = {"source_id": "demo-source", "version": 1, "files": {}}
@@ -52,8 +52,9 @@ class SourceService:
         now = datetime.now(timezone.utc).isoformat()
         path = self._file_path(filename)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
-        return {"file_id": file_id, "filename": filename, "path": str(path.relative_to(self.root)), "version": version, "size": len(content.encode("utf-8")), "modified_timestamp": now, "content_hash": sha256_content(content)}
+        content_bytes = content.encode("utf-8")
+        path.write_bytes(content_bytes)
+        return {"file_id": file_id, "filename": filename, "path": str(path.relative_to(self.root)), "version": version, "size": len(content_bytes), "modified_timestamp": now, "content_hash": sha256_content(content)}
 
     def state(self) -> dict[str, Any]:
         state = self._read()
