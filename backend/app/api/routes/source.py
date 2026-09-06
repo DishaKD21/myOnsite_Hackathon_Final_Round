@@ -1,14 +1,10 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile
-from ...schemas.source import AddInput, DeleteInput, ModifyInput, SourceFileInput
+from ...schemas.source import AddInput, DeleteInput, ModifyInput
 from ...services.source_service import SourceService
 from ...database import SOURCE_DIR
 
 router = APIRouter()
 source = SourceService(SOURCE_DIR)
-
-@router.post("/source/seed")
-def seed(files: list[SourceFileInput]) -> dict:
-    return source.seed([item.model_dump() for item in files])
 
 @router.post("/source/modify")
 def modify(item: ModifyInput) -> dict:

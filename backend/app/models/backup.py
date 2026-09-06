@@ -9,6 +9,7 @@ def utcnow() -> datetime:
 
 class BackupPoint(Base):
 	__tablename__ = "backup_points"
+	__allow_unmapped__ = True
 	id: Mapped[str] = mapped_column(String(120), primary_key=True)
 	source_id: Mapped[str] = mapped_column(String(120), default="demo-source", index=True)
 	type: Mapped[str] = mapped_column(String(20))
@@ -24,6 +25,7 @@ class BackupPoint(Base):
 	status: Mapped[str] = mapped_column(String(20), default="VALID")
 	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 	changes: Mapped[list["BackupChange"]] = relationship(back_populates="backup", cascade="all, delete-orphan")
+	next: "BackupPoint | None" = None
 
 class BackupChange(Base):
 	__tablename__ = "backup_changes"

@@ -49,7 +49,7 @@ Docker is also supported with `docker compose up --build`.
 
 Source operations:
 
-- `POST /source/seed` with `[ {"file_id":"a", "filename":"a.json", "content":"one"} ]`
+- Upload files through `POST /source/files` to establish the source state.
 - `POST /source/modify`, `/source/add`, `/source/delete`
 - `GET /source/state`
 

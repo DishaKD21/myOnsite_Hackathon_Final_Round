@@ -1,4 +1,4 @@
-export default function SimpleControls({ backups, safePoint, onFull, onIncremental, onVerify, onRestore, onVerifyRestore, onFindAlternate, onVerifyAlternate, alternateResult, busy }) {
+export default function SimpleControls({ backups, safePoint, onVerify, onRestore, onVerifyRestore, onFindAlternate, onVerifyAlternate, alternateResult, busy }) {
   const incremental = backups.find((point) => point.type === 'INCREMENTAL')
   const candidates = alternateResult?.candidates || []
   const selectedAlternate = candidates[0]
@@ -7,8 +7,6 @@ export default function SimpleControls({ backups, safePoint, onFull, onIncrement
     <section className="simple-controls">
       <div className="section-heading"><div><p className="eyebrow">Controls</p><h2>Run the next backend operation</h2></div></div>
       <div className="control-row">
-        <button type="button" className="button button-primary" onClick={onFull} disabled={busy}>Create full backup</button>
-        <button type="button" className="button button-secondary" onClick={onIncremental} disabled={busy || !backups.length}>Create incremental</button>
         <button type="button" className="button button-secondary" onClick={onVerify} disabled={busy || !backups.length}>Verify backup chain</button>
       </div>
       <div className="control-row control-row-secondary">

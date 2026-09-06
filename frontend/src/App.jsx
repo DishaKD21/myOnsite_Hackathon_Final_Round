@@ -26,6 +26,7 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [operationSteps, setOperationSteps] = useState([])
 
   const refresh = useCallback(async (showSpinner = true) => {
     if (showSpinner) setRefreshing(true)
@@ -46,9 +47,11 @@ export default function App() {
 
   const playSteps = async (title, steps = [], stepHook) => {
     setActiveOperation(title)
+    setOperationSteps([])
     addLog(title, 'running')
     for (const step of steps) {
       await new Promise((resolve) => setTimeout(resolve, 240))
+      setOperationSteps((current) => [...current, step])
       addLog(step.name.replaceAll('_', ' '), step.status === 'failed' ? 'failed' : 'completed', step.details || '')
       stepHook?.(step)
     }
@@ -58,7 +61,7 @@ export default function App() {
 
   const run = async (operation, successMessage, after = refresh) => {
     setBusy(true); setError(''); setNotice('')
-    try { const result = await operation(); await playSteps(successMessage, result?.steps, result?.stepHook); if (successMessage) setNotice(successMessage); await after(false); return result }
+    try { const result = await operation(); await playSteps(successMessage, result?.steps, result?.stepHook); if (successMessage) setNotice(successMessage); await after(false); setOperationSteps([]); return result }
     catch (requestError) { setError(requestError.message); addLog(requestError.message, 'failed') }
     finally { setBusy(false) }
   }
@@ -83,7 +86,14 @@ export default function App() {
   }, 'Verifying backup chain')
   const createFullAction = () => run(createFullBackup, 'Creating full backup')
   const createIncrementalAction = () => run(createIncrementalBackup, 'Creating incremental backup')
-  const upload = (files) => run(() => uploadSourceFiles(files), 'Uploading source files')
+  const addSourceData = async (files) => {
+    const uploadResult = await run(() => uploadSourceFiles(files), 'Adding source data')
+    if (uploadResult) await run(createFullBackup, 'Creating FULL baseline')
+  }
+  const addChangedData = async (files) => {
+    const uploadResult = files.length ? await run(() => uploadSourceFiles(files), 'Adding changed data') : true
+    if (uploadResult) await run(createIncrementalBackup, 'Creating incremental delta')
+  }
   const remove = (fileId) => run(() => deleteSource(fileId), `Deleting ${fileId}`)
   const findAlternateAction = (id) => run(async () => { const result = await findAlternate(id); setAlternateResult(result); return { ...result, steps: [{ name: 'find_alternate_delta', status: 'completed', details: `${result.candidates?.length || 0} candidates` }] } }, 'Finding alternate delta')
   const verifyAlternateAction = (id, alternateId) => run(async () => { const result = await verifyAlternate(id, alternateId); setAlternateResult((current) => ({ ...current, verification: result })); if (result.accepted) { setVerification(await verifyChain()) } return { ...result, steps: [{ name: result.accepted ? 'alternate_accepted' : 'alternate_rejected', status: result.accepted ? 'completed' : 'failed' }] } }, 'Verifying alternate delta')
@@ -111,10 +121,10 @@ export default function App() {
         )}
 
         <div className="simple-layout">
-          <SourcePanel source={source} onUpload={upload} onDelete={remove} busy={busy} />
-          <BackupChain backups={backups} selectedId={selectedId} selectedBackup={selectedBackup} onSelect={selectBackup} verification={verification} activeNode={activeNode} alternateResult={alternateResult} />
+          <SourcePanel source={source} sourceCreated={backups.some((point) => point.type === 'FULL')} onAddSource={addSourceData} onAddChanged={addChangedData} onDelete={remove} busy={busy} />
+          <BackupChain backups={backups} selectedId={selectedId} selectedBackup={selectedBackup} onSelect={selectBackup} verification={verification} activeNode={activeNode} alternateResult={alternateResult} operationSteps={operationSteps} />
           <ProcessLog entries={logEntries} active={activeOperation} />
-          <SimpleControls backups={backups} safePoint={verification?.latest_safe_recovery_point || ''} onFull={createFullAction} onIncremental={createIncrementalAction} onVerify={verifyChainAction} onRestore={restoreAction} onVerifyRestore={verifyRestoreAction} onFindAlternate={findAlternateAction} onVerifyAlternate={verifyAlternateAction} alternateResult={alternateResult} busy={busy} />
+          <SimpleControls backups={backups} sourceCreated={backups.some((point) => point.type === 'FULL')} safePoint={verification?.latest_safe_recovery_point || ''} onFull={createFullAction} onIncremental={createIncrementalAction} onVerify={verifyChainAction} onRestore={restoreAction} onVerifyRestore={verifyRestoreAction} onFindAlternate={findAlternateAction} onVerifyAlternate={verifyAlternateAction} alternateResult={alternateResult} busy={busy} />
           {(restoreResult || restoreVerification) && <p className="compact-result">{restoreVerification ? (restoreVerification.verified ? 'Restored data verified.' : 'Restored data has mismatches.') : restoreResult?.restored ? `Restored ${restoreResult.files?.length || 0} files.` : 'Restore failed.'}</p>}
         </div>
       </main>

@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from .. import database
+from ..backup_chain import BackupChain
 from ..database import SOURCE_DIR
 from ..models import BackupPoint, BackupChange, Resolution
 from .hash_service import canonical_bytes, calculate_artifact_hash, sha256_content
@@ -28,7 +29,7 @@ def compare_file(previous: dict[str, Any] | None, current: dict[str, Any] | None
     if current is None:
         return {"file_id": file_id, "metadata_changed": True, "content_changed": True, "change_reason": "deleted", "previous": previous, "current": None}
     metadata_changed = any(previous.get(key) != current.get(key) for key in ("version", "size", "modified_timestamp"))
-    content_changed = previous.get("content_hash") != current.get("content_hash") if (metadata_changed or verify_hash) else False
+    content_changed = previous.get("content_hash") != current.get("content_hash")
     reason = "content changed" if content_changed else ("metadata changed without content change" if metadata_changed else "unchanged")
     return {"file_id": file_id, "metadata_changed": metadata_changed, "content_changed": content_changed, "change_reason": reason, "previous": previous, "current": current}
 
@@ -37,8 +38,10 @@ def state_for_point(db: Session, point: BackupPoint, replacements: dict[str, str
     if point.type == "FULL":
         artifact = _artifact_payload(point)
         return {item["file_id"]: item for item in artifact["files"]}
-    resolution = db.execute(select(Resolution).where(Resolution.original_id == point.parent_id, Resolution.approved.is_(True)).order_by(Resolution.id.desc())).scalars().first()
-    parent_id = replacements.get(point.parent_id, resolution.replacement_id if resolution else point.parent_id)
+    replacement = db.execute(select(Resolution).where(Resolution.approved.is_(True), Resolution.replacement_id == point.id).order_by(Resolution.id.desc())).scalars().first()
+    parent_key = db.get(BackupPoint, replacement.original_id).parent_id if replacement else point.parent_id
+    resolution = None if replacement else db.execute(select(Resolution).where(Resolution.original_id == parent_key, Resolution.approved.is_(True)).order_by(Resolution.id.desc())).scalars().first()
+    parent_id = replacements.get(parent_key, resolution.replacement_id if resolution else parent_key)
     parent = db.get(BackupPoint, parent_id)
     if parent is None:
         raise ValueError(f"missing parent {point.parent_id}")
@@ -51,7 +54,9 @@ def state_for_point(db: Session, point: BackupPoint, replacements: dict[str, str
             state[change["file_id"]] = change["new"]
     return state
 
-def detect_changes(previous_recovery_point: BackupPoint, current_source_state: dict[str, Any], db: Session) -> list[dict[str, Any]]:
+def detect_changes(previous_recovery_point: BackupPoint | BackupChain, current_source_state: dict[str, Any], db: Session) -> list[dict[str, Any]]:
+    if isinstance(previous_recovery_point, BackupChain):
+        return previous_recovery_point.compare_source(_files(current_source_state))
     previous = state_for_point(db, previous_recovery_point)
     current = {item["file_id"]: item for item in _files(current_source_state)}
     results = []
@@ -89,11 +94,15 @@ def create_full_backup(db: Session, source_id: str = "demo-source") -> BackupPoi
     point = BackupPoint(id=point_id, source_id=source_id, type="FULL", sequence=sequence, start_version=state["version"], end_version=state["version"], change_count=len(_files(state)), artifact_path=str(artifact_path), manifest_path=str(manifest_path), manifest_hash=manifest_hash(manifest), artifact_hash=calculate_artifact_hash(artifact_path), status="VALID")
     db.add(point); db.commit(); return point
 
-def create_incremental_backup(db: Session, source_id: str = "demo-source") -> BackupPoint:
-    parent = db.execute(select(BackupPoint).where(BackupPoint.source_id == source_id).order_by(BackupPoint.sequence.desc())).scalars().first()
+def create_incremental_backup(db: Session, source_id: str = "demo-source", chain: BackupChain | None = None) -> BackupPoint | None:
+    chain = chain or BackupChain.load(db, source_id)
+    chain.last_comparison_steps = [{"name": "start_linked_list_traversal", "status": "completed"}]
+    parent = chain.tail
     if parent is None:
         raise ValueError("a full backup is required first")
-    state = source.state(); comparisons = detect_changes(parent, state, db)
+    state = source.state(); comparisons = detect_changes(chain, state, db)
+    if not comparisons:
+        return None
     sequence = parent.sequence + 1; point_id = f"D{sequence - 1}"
     changes = sorted_changes([_change_payload(item) for item in comparisons])
     directory = database.BACKUPS_DIR / point_id

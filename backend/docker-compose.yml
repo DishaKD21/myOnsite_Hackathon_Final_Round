@@ -1,0 +1,13 @@
+services:
+  backupchain:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+  frontend:
+    build: ../frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backupchain

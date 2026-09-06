@@ -34,7 +34,7 @@ VITE_API_BASE_URL=http://localhost:8000
 ## Frontend architecture
 
 - `src/services/api.js` centralizes every fetch request and translates network/HTTP errors into user-facing messages.
-- `SourcePanel` seeds and modifies the simulated source using the backend's actual schemas.
+- `SourcePanel` uploads and modifies user-provided source files using the backend's actual schemas.
 - `BackupChain` renders the returned catalog dynamically using `parent_id`-ordered records.
 - `BackupDetails` displays hashes and invokes backend validation.
 - `VerificationPanel` shows the actual `/chain/verify` decision.
@@ -46,7 +46,7 @@ VITE_API_BASE_URL=http://localhost:8000
 | UI action | Method and endpoint | Body/query |
 | --- | --- | --- |
 | Read source | `GET /source/state` | none |
-| Seed source | `POST /source/seed` | array of `{ file_id, filename, content }` |
+| Upload source files | `POST /source/files` | multipart file upload |
 | Modify file | `POST /source/modify` | `{ file_id, content }` |
 | Create full | `POST /backup/full` | none |
 | Create incremental | `POST /backup/incremental` | none |

@@ -1,0 +1,13 @@
+product_id,sku,name,category,unit_price,inventory_count
+PROD-001,SKU-KEY-01,Mechanical Keyboard,Hardware,129.99,85
+PROD-002,SKU-MOU-02,Ergonomic Mouse,Hardware,59.50,140
+PROD-003,SKU-MON-03,4K Ultra-Wide Monitor,Hardware,499.00,32
+PROD-004,SKU-DES-04,Standing Desk Mat,Ergonomics,45.00,210
+PROD-005,SKU-CHA-05,Mesh Task Chair,Ergonomics,289.00,45
+PROD-006,SKU-LGT-06,Screenbar Monitor Light,Accessories,65.00,115
+PROD-007,SKU-CAB-07,Thunderbolt 4 Cable,Cables,29.99,350
+PROD-008,SKU-DOC-08,USB-C Docking Station,Hardware,179.00,60
+PROD-009,SKU-HDP-09,Noise-Canceling Headset,Audio,199.50,75
+PROD-010,SKU-PAD-10,Desk Pad XL,Accessories,24.00,400
+PROD-011,SKU-CAM-11,1080p Streaming Webcam,Hardware,79.00,90
+PROD-012,SKU-ARM-12,Dual Monitor Arm,Ergonomics,89.00,67

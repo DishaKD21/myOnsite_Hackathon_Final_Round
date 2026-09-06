@@ -7,7 +7,7 @@ function nodeStatus(point, verification) {
 	return point.status || 'UNKNOWN'
 }
 
-export default function BackupChain({ backups, selectedId, selectedBackup, onSelect, verification, activeNode, alternateResult }) {
+export default function BackupChain({ backups, selectedId, selectedBackup, onSelect, verification, activeNode, alternateResult, operationSteps }) {
 	return (
 		<section className="panel chain-panel">
 			<div className="section-heading">
@@ -45,6 +45,10 @@ export default function BackupChain({ backups, selectedId, selectedBackup, onSel
 					<small>Create a full backup to establish the chain.</small>
 				</div>
 			)}
+			{operationSteps?.length > 0 && <div className="operation-inspection" aria-live="polite">
+				<strong>Temporary operation state</strong>
+				{operationSteps.map((step, index) => <div className={`inspection-step ${step.status}`} key={`${step.name}-${index}`}><span>{step.status === 'failed' ? 'x' : 'ok'}</span><span>{step.name.replaceAll('_', ' ')}</span>{step.details && <small>{step.details}</small>}</div>)}
+			</div>}
 			{selectedBackup && <div className="node-details"><strong>{selectedBackup.id}</strong><span>{selectedBackup.type} · parent {selectedBackup.parent_id || 'none'} · {selectedBackup.change_count} changes · V{selectedBackup.end_version}</span><span>Manifest {selectedBackup.manifest_hash?.slice(0, 16)}... · Artifact {selectedBackup.artifact_hash?.slice(0, 16)}...</span></div>}
 			{verification?.chain_status === 'BROKEN' && <div className="chain-result failed-result"><strong>Earliest broken segment: {verification.earliest_problem}</strong><span>Latest safe recovery point: {verification.latest_safe_recovery_point || 'none'}</span></div>}
 			{verification?.chain_status !== 'BROKEN' && verification?.chain_status && <div className="chain-result"><strong>{verification.chain_status.replaceAll('_', ' ')}</strong><span>Latest safe recovery point: {verification.latest_safe_recovery_point}</span></div>}

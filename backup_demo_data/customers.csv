@@ -1,0 +1,19 @@
+customer_id,name,email,tier,signup_date
+CUST-001,Alice Miller,alice.miller@example.internal,Gold,2024-01-15
+CUST-002,Bob Chen,bob.chen@example.internal,Standard,2024-01-20
+CUST-003,Clara Diaz,clara.diaz@example.internal,Platinum,2024-02-01
+CUST-004,David Smith,david.smith@example.internal,Standard,2024-02-14
+CUST-005,Elena Rostova,elena.rostova@example.internal,Gold,2024-03-02
+CUST-006,Frank Patel,frank.patel@example.internal,Standard,2024-03-10
+CUST-007,Grace Hopper,grace.hopper@example.internal,Platinum,2024-03-18
+CUST-008,Henry Gomez,henry.gomez@example.internal,Standard,2024-04-05
+CUST-009,Isla Brown,isla.brown@example.internal,Gold,2024-04-12
+CUST-010,Jack Wilson,jack.wilson@example.internal,Standard,2024-04-20
+CUST-011,Kavita Nair,kavita.nair@example.internal,Platinum,2024-05-01
+CUST-012,Liam Taylor,liam.taylor@example.internal,Standard,2024-05-11
+CUST-013,Mona Al-Mansoor,mona.almansoor@example.internal,Gold,2024-05-22
+CUST-014,Noah Vance,noah.vance@example.internal,Standard,2024-06-03
+CUST-015,Olivia Jones,olivia.jones@example.internal,Gold,2024-06-15
+CUST-016,Peter Novak,peter.novak@example.internal,Standard,2024-07-01
+CUST-017,Olive Jony,olive.jony@example.internal,Gold,2024-06-15
+CUST-018,Parker Novak,parker.novak@example.internal,Standard,2024-07-01
