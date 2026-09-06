@@ -2,12 +2,15 @@ services:
   backupchain:
     build: .
     ports:
-      - "8000:8000"
+      - "8080:8000"
     volumes:
       - ./data:/app/data
   frontend:
-    build: ../frontend
+    build:
+      context: ../frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8080
     ports:
-      - "5173:80"
+      - "5174:80"
     depends_on:
       - backupchain

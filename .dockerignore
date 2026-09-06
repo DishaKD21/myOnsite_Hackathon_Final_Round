@@ -1,0 +1,28 @@
+# Local development and VCS files
+.git
+.gitignore
+.dockerignore
+.env
+.env.*
+
+# Python caches, environments, and test output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local runtime state and generated backup data
+backend/data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Frontend dependencies and generated output
+frontend/node_modules/
+frontend/dist/
+
+# Demo/test-only data
+backup_demo_data/
